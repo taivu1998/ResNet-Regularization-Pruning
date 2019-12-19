@@ -22,8 +22,8 @@ There are several optional command line arguments:
 
 - --arch: ResNet architecture, such as 'resnet20' or 'resnet18'
 - --dataset: Dataset, such as 'cifar10' or 'cifar100'
-- --regularize: Regularization techniques, such as mixup or cutout
-- --prune: Pruning techniques, such as soft filter pruning
+- --regularize: Regularization techniques, such as 'mixup' or 'cutout'
+- --prune: Pruning techniques, such as 'soft_filter'
 
 To calculate the number of FLOPs, use the following command:
 
