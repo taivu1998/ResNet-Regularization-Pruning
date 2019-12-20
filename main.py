@@ -20,9 +20,11 @@ warnings.filterwarnings('ignore')
 
 arch_options = ['resnet20', 'resnet32', 'resnet44', 'resnet56', 'resnet110', 'resnet1202',
                 'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152']
-dataset_options = ['cifar10', 'cifar100', 'svhn', 'imagenet']
+dataset_options = ['cifar10', 'cifar100', 'svhn', 'stl10', 'imagenet']
 regularize_options = [None, 'mixup', 'cutout']
 prune_options = [None, 'soft_filter']
+layers_end = {'resnet20': 54, 'resnet32': 90, 'resnet44': 126, 'resnet56': 162, 'resnet110': 324, 'resnet1202': 3600,
+              'resnet18': 57, 'resnet34': 105, 'resnet50': 156, 'resnet101': 309, 'resnet152': 462}
 
 
 def parseArgs():
@@ -35,6 +37,7 @@ def parseArgs():
     parser.add_argument('--regularize', type = str, default = None, help = 'Regularization.', choices = regularize_options)
     parser.add_argument('--prune', type = str, default = None, help = 'Pruning.', choices = prune_options)
     
+    # Arguments for training.
     parser.add_argument('--batch-size', type = int, default = 128, help = 'Batch size.')
     parser.add_argument('--lr', type = float, default = 0.1, help = 'Learning rate.')
     parser.add_argument('--start-epoch', type = int, default = 0, help = 'Starting epoch.')
@@ -45,11 +48,20 @@ def parseArgs():
     parser.add_argument('--seed', type = int, default = 0, help = 'Random seed.')
     parser.add_argument('--resume', action = 'store_true', default = False, help = 'Resume from checkpoint.')
     
+    # Arguments for regularization.
     parser.add_argument('--alpha-mixup', type = float, default = 1., help = 'Mixup interpolation coefficient.')
     parser.add_argument('--n-holes-cutout', type = int, default = 1, help = 'Number of holes to cut out from image.')
     parser.add_argument('--length-cutout', type = int, default = 16, help = 'Length of the holes.')
     
+     # Arguments for pruning.
+    parser.add_argument('--pruning-rate', type = float, default = 0.9, help = 'Compress rate of model.')
+    parser.add_argument('--epoch-prune', type = int, default = 1,  help = 'Frequency of pruning.')
+    parser.add_argument('--skip-downsample', type = int, default = 1, help = 'Compress layer of model.')
+    
     args = parser.parse_known_args()[0]
+    args.layer_begin = 0
+    args.layer_end = layers_end[args.arch]
+    args.layer_inter = 3
     return args
 
 

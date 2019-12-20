@@ -17,12 +17,14 @@ from pytorch_lightning import Trainer
 
 from resnet import ResNet
 from regularization import *
+from soft_filter_pruning import Mask
 
 import warnings
 warnings.filterwarnings('ignore')
 
 
 class Net(pl.LightningModule):
+    
     def __init__(self, arch, criterion, args):
         super(Net, self).__init__()
         self.args = args
@@ -32,11 +34,18 @@ class Net(pl.LightningModule):
         num_classes = 100 if self.args.dataset == 'cifar100' else 10
         self.net = ResNet(arch, num_classes)
         self.criterion = criterion
-        
         self.mixup = Mixup() if self.args.regularize == 'mixup' else None
-        # self.cutout = Cutout(n_holes = self.args.n_holes_cutout, length = self.args.length.cutout) \
-        #               if self.args.regularize == 'cutout' else None
-
+        
+        if self.args.prune == 'soft_filter':
+            self.mask = Mask(self.net, self.args)
+            self.mask.init_length()
+            self.mask.model = self.net
+            self.mask.init_mask(self.args.pruning_rate)
+            self.mask.do_mask()
+            self.net = self.mask.model
+        else:
+            self.mask = None
+            
     def forward(self, x):
         return self.net(x)
 
@@ -55,6 +64,16 @@ class Net(pl.LightningModule):
         _, predicted = torch.max(outputs.data, 1)
         return {'loss': loss, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
 
+    def on_epoch_end(self):
+        if self.args.prune == 'soft_filter':
+            if self.current_epoch % self.args.epoch_prune == 0 or self.current_epoch == self.args.epochs - 1:
+                self.mask.model = self.net
+                self.mask.if_zero()
+                self.mask.init_mask(self.args.pruning_rate)
+                self.mask.do_mask()
+                self.mask.if_zero()
+                self.net = self.mask.model
+
     def validation_step(self, batch, batch_nb):
         inputs, targets = batch
         if self.args.regularize == 'mixup':
@@ -68,31 +87,33 @@ class Net(pl.LightningModule):
         acc = 1.0 * correct / total
 
         acc = torch.tensor(acc)
-        # if self.on_gpu:
-        #     acc = acc.cuda(loss.device.index)
         return {'val_loss': loss, 'val_acc': acc}
 
     def validation_end(self, outputs):
-        avg_loss = torch.stack([x['val_loss'].float() for x in outputs]).mean()
-        avg_acc = torch.stack([x['val_acc'].float() for x in outputs]).mean()
-        tensorboard_logs = {'val_loss': avg_loss, 'val_acc': avg_acc}
-        return {'avg_val_loss': avg_loss, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
+        val_loss_mean = 0
+        val_acc_mean = 0
+        for output in outputs:
+            val_loss_mean += output['val_loss']
+            val_acc_mean += output['val_acc']
+        val_loss_mean /= len(outputs)
+        val_acc_mean /= len(outputs)
+        
+        tensorboard_logs = {'val_loss': val_loss_mean, 'val_acc': val_acc_mean}
+        return {'avg_val_loss': val_loss_mean, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
 
     def configure_optimizers(self):
         optimizer = optim.SGD(self.parameters(), lr = self.args.lr,
                               momentum = self.args.momentum,
                               weight_decay = self.args.decay)
-        # optimizer = optim.SGD(self.net.parameters(), lr=self.args.lr, momentum=self.args.momentum,
-        #              weight_decay=self.args.decay)
         if self.args.dataset == 'svhn':
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [80, 120], gamma = 0.1,
-                                                       last_epoch = self.args.start_epoch-1)
-        elif self.args.regularize == 'mixup':
-            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [100, 150], gamma = 0.1,
-                                                       last_epoch = self.args.start_epoch-1)
-        else:
+                                                       last_epoch = self.args.start_epoch - 1)
+        elif self.args.regularize == 'cutout':
             scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [60, 120, 160], gamma = 0.2,
-                                                       last_epoch=self.args.start_epoch-1)
+                                                       last_epoch=self.args.start_epoch - 1)
+        else:
+            scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones = [100, 150], gamma = 0.1,
+                                                       last_epoch = self.args.start_epoch - 1)
         return [optimizer], [scheduler]
 
     @pl.data_loader
@@ -156,7 +177,14 @@ class Net(pl.LightningModule):
                                        train = train,
                                        transform = transform,
                                        download = True)
-            
+        
+        elif self.args.dataset == 'stl10':
+            split = 'train' if train else 'test'
+            dataset = datasets.STL10(root = '~/data',
+                                     split=split,
+                                     transform = transform,
+                                     download = True)
+
         elif self.args.dataset == 'svhn':
             if train:
                 dataset = datasets.SVHN(root = '~/data',
