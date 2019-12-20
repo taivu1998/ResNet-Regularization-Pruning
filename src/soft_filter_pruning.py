@@ -3,6 +3,7 @@ import numpy as np
 
 
 class Mask(object):
+
   def __init__(self, model, args):
       self.model_size = {}
       self.model_length = {}
@@ -106,9 +107,6 @@ class Mask(object):
           for x in skip_list:
               self.compress_rate[x] = 1
               self.mask_index.remove(x)
-              # print(self.mask_index)
-      # else:
-      #     pass
 
   def init_mask(self, layer_rate):
       self.init_rate(layer_rate)
