@@ -32,7 +32,14 @@ class Net(pl.LightningModule):
     ''' Lightning wrapper for a ResNet model. '''
     
     def __init__(self, arch, criterion, args):
-        ''' Initializes the model. '''
+        '''
+        Initializes the model.
+        
+        Args:
+            arch (str): ResNet architecture.
+            criterion (Loss): Loss function.
+            args (Args): Arguments.
+        '''
         super(Net, self).__init__()
         self.args = args
         if self.args.seed != 0:
@@ -54,11 +61,25 @@ class Net(pl.LightningModule):
             self.mask = None
             
     def forward(self, x):
-        ''' Performs a forward pass through the network. '''
+        '''
+        Performs a forward pass through the network.
+        
+        Args:
+            x (Tensor): An input image.
+            
+        Returns:
+            Tensor: An output vector.
+        '''
         return self.net(x)
 
     def training_step(self, batch, batch_nb):
-        ''' Trains the model on a batch. '''
+        '''
+        Trains the model on a batch.
+        
+        Args:
+            batch (Tensor): A batch.
+            batch_nb (int): A batch index.
+        '''
         inputs, targets = batch
         if self.args.regularize == 'mixup':
             inputs, targets_a, targets_b, lam = self.mixup.mixup_data(inputs, targets, self.args.alpha_mixup)
@@ -85,7 +106,13 @@ class Net(pl.LightningModule):
                 self.net = self.mask.model
 
     def validation_step(self, batch, batch_nb):
-        ''' Evaluates the model on a batch. '''
+        '''
+        Evaluates the model on a batch.
+        
+        Args:
+            batch (Tensor): A batch.
+            batch_nb (int): A batch index.
+        '''
         inputs, targets = batch
         if self.args.regularize == 'mixup':
             inputs, targets = Variable(inputs, volatile = True), Variable(targets)
@@ -101,7 +128,12 @@ class Net(pl.LightningModule):
         return {'val_loss': loss, 'val_acc': acc}
 
     def validation_end(self, outputs):
-        ''' Records validation outcomes. '''
+        '''
+        Records validation outcomes.
+        
+        Args:
+            outputs (dict): Validation outputs for the whole test set.
+        '''
         val_loss_mean = 0
         val_acc_mean = 0
         for output in outputs:
@@ -183,7 +215,19 @@ class Net(pl.LightningModule):
         return dataloader
 
     def load_dataset(self, dataset, train, transform, shuffle, batch_size):
-        ''' Loads a dataset. '''
+        '''
+        Loads a dataset.
+        
+        Args:
+            dataset (str): The name of the dataset.
+            train (bool): Whether to load the training set or not.
+            transform (Transform): Image transformations.
+            shuffle (bool): Whether to shuffle the data or not.
+            batch_size (int): The size of a batch.
+            
+        Returns:
+            DataLoader: A DataLoader object containing the dataset.
+        '''
         if self.args.dataset == 'cifar10':
             dataset = datasets.CIFAR10(root = '~/data',
                                        train = train,

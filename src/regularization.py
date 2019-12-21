@@ -9,8 +9,9 @@ References:
 import torch
 import numpy as np
 
+
 class Mixup(object):
-    ''' Mixup regularization: Adds convex combinations of training examples. '''
+    ''' Mixup regularization, which adds convex combinations of training examples. '''
     
     def __init__(self):
         ''' Initializes a Mixup object. '''
@@ -51,20 +52,20 @@ class Mixup(object):
             lam (float): lambda coefficient.
         
         Returns:
-            Tensor: Value of mixup loss function.
+            Tensor: The value of mixup loss function.
         '''
         return lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
 
 
 class Cutout(object):
-    ''' Cutout regularization: Randomly masks out one or more patches from an image. '''
+    ''' Cutout regularization, which randomly masks out one or more patches from an image. '''
     
     def __init__(self, n_holes, length):
         '''
         Initializes a Cutout object.
         
         Args:
-            n_holes (int): Number of patches to cut out of each image.
+            n_holes (int): The number of patches to cut out of each image.
             length (int): The length (in pixels) of each square patch.
         '''
         self.n_holes = n_holes
@@ -75,10 +76,10 @@ class Cutout(object):
         Randomly masks out one or more patches from an image.
         
         Args:
-            img (Tensor): Tensor image of size (C, H, W).
+            img (Tensor): A Tensor image of size (C, H, W).
             
         Returns:
-            Tensor: Image with n_holes of dimension length x length cut out of it.
+            Tensor: An image with n_holes of dimension length x length cut out of it.
         '''
         h = img.size(1)
         w = img.size(2)

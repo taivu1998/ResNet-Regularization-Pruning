@@ -41,7 +41,7 @@ class BasicBlockSmall(nn.Module):
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != planes:
             if option == 'A':
-                # For CIFAR10 ResNet paper uses option A.
+                # For CIFAR10 ResNet paper, uses option A.
                 self.shortcut = LambdaLayer(lambda x:
                                             F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, planes // 4, planes // 4), "constant", 0))
             elif option == 'B':
@@ -60,6 +60,7 @@ class BasicBlockSmall(nn.Module):
 
 class ResNetSmall(nn.Module):
     ''' Small ResNet architectures. '''
+    
     def __init__(self, block, num_blocks, num_classes = 10):
         super(ResNetSmall, self).__init__()
         self.in_planes = 16
@@ -210,6 +211,7 @@ class PreActBottleneckLarge(nn.Module):
 
 class ResNetLarge(nn.Module):
     ''' Large ResNet architectures. '''
+    
     def __init__(self, block, num_blocks, num_classes = 10):
         super(ResNetLarge, self).__init__()
         self.in_planes = 64

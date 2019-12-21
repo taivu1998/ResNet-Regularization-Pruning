@@ -13,6 +13,7 @@ class Mask(object):
     ''' A Mask that performs soft filter pruning. '''
 
     def __init__(self, model, args):
+        ''' Initializes the mask. '''
         self.model_size = {}
         self.model_length = {}
         self.compress_rate = {}
@@ -23,6 +24,7 @@ class Mask(object):
         self.args = args
 
     def get_codebook(self, weight_torch, compress_rate, length):
+        ''' Gets codebook. '''
         weight_vec = weight_torch.view(length)
         weight_np = weight_vec.cpu().numpy()
 
@@ -38,6 +40,7 @@ class Mask(object):
         return weight_np
 
     def get_filter_codebook(self, weight_torch, compress_rate, length):
+        ''' Gets filter codebook. '''
         codebook = np.ones(length)
         if len(weight_torch.size()) == 4:
             filter_pruned_num = int(weight_torch.size()[0] * (1 - compress_rate))
@@ -55,10 +58,12 @@ class Mask(object):
         return codebook
 
     def convert2tensor(self, x):
+        ''' Converts an input to PyTorch tensor. '''
         x = torch.FloatTensor(x)
         return x
 
     def init_length(self):
+        ''' Initializes the length of each layer. '''
         for index, item in enumerate(self.model.parameters()):
             self.model_size[index] = item.size()
 
@@ -70,6 +75,7 @@ class Mask(object):
                     self.model_length[index1] *= self.model_size[index1][index2]
 
     def init_rate(self, layer_rate):
+        ''' Initializes the compression rate of each layer. '''
         for index, item in enumerate(self.model.parameters()):
             self.compress_rate[index] = 1
         for key in range(self.args.layer_begin, self.args.layer_end + 1, self.args.layer_inter):
@@ -117,6 +123,7 @@ class Mask(object):
                 self.mask_index.remove(x)
 
     def init_mask(self, layer_rate):
+        ''' Initializes the mask. '''
         self.init_rate(layer_rate)
         for index, item in enumerate(self.model.parameters()):
             if (index in self.mask_index):
@@ -127,6 +134,7 @@ class Mask(object):
         print("Mask ready.")
 
     def do_mask(self):
+        ''' Performs pruning. '''
         for index, item in enumerate(self.model.parameters()):
             if (index in self.mask_index):
                 a = item.data.view(self.model_length[index])
@@ -135,6 +143,7 @@ class Mask(object):
         print("Mask done.")
 
     def if_zero(self):
+        ''' Prints information about network weights. '''
         for index, item in enumerate(self.model.parameters()):
             if index in [x for x in range(self.args.layer_begin, self.args.layer_end + 1, self.args.layer_inter)]:
                 a = item.data.view(self.model_length[index])

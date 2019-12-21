@@ -23,29 +23,29 @@ def cifar_resnet_flop(layer = 110, prune_rate = 1):
 
     stage = int(layer / 3)
     for index in range(0, layer, 1):
-        if index == 0:  # first conv layer before block
+        if index == 0:  # First convolutional layer before block.
             flop += channel[0] * width[0] * width[0] * 9 * 3 * prune_rate
-        elif index in [1, 2]:  # first block of first stage
+        elif index in [1, 2]:  # First block of first stage.
             flop += channel[0] * width[0] * width[0] * 9 * channel[0] * (prune_rate ** 2)
-        elif 2 < index <= stage:  # other blocks of first stage
+        elif 2 < index <= stage:  # Other blocks of first stage.
             if index % 2 != 0:
-                # first layer of block, only output channal reduced, input channel remain the same
+                # First layer of block, only output channal reduced, input channel remain the same.
                 flop += channel[0] * width[0] * width[0] * 9 * channel[0] * (prune_rate)
             elif index % 2 == 0:
-                # second layer of block, both input and output channal reduced
+                # Second layer of block, both input and output channal reduced.
                 flop += channel[0] * width[0] * width[0] * 9 * channel[0] * (prune_rate ** 2)
-        elif stage < index <= stage * 2:  # second stage
+        elif stage < index <= stage * 2:  # Second stage.
             if index % 2 != 0:
                 flop += channel[1] * width[1] * width[1] * 9 * channel[1] * (prune_rate)
             elif index % 2 == 0:
                 flop += channel[1] * width[1] * width[1] * 9 * channel[1] * (prune_rate ** 2)
-        elif stage * 2 < index <= stage * 3:  # third stage
+        elif stage * 2 < index <= stage * 3:  # Third stage.
             if index % 2 != 0:
                 flop += channel[2] * width[2] * width[2] * 9 * channel[2] * (prune_rate)
             elif index % 2 == 0:
                 flop += channel[2] * width[2] * width[2] * 9 * channel[2] * (prune_rate ** 2)
 
-    # offset for dimension change between blocks
+    # Offset for dimension change between blocks.
     offset1 = channel[1] * width[1] * width[1] * 9 * channel[1] * prune_rate - channel[1] * width[1] * width[1] * 9 * \
               channel[0] * prune_rate
     offset2 = channel[2] * width[2] * width[2] * 9 * channel[2] * prune_rate - channel[2] * width[2] * width[2] * 9 * \
@@ -57,7 +57,7 @@ def cifar_resnet_flop(layer = 110, prune_rate = 1):
 def cal_cifar_resnet_flop(layer, prune_rate):
     '''
     Compares the number of FLOPs for a ResNet model
-    with and  without a pruning rate.
+    with and without a pruning rate.
     
     Args:
         layer (int): The ResNet network size for CIFAR.
@@ -67,8 +67,8 @@ def cal_cifar_resnet_flop(layer, prune_rate):
     baseline_flop = cifar_resnet_flop(layer, 1)
 
     print(
-        "pruning rate of layer {:d} is {:.1f}, pruned FLOP is {:.0f}, "
-        "baseline FLOP is {:.0f}, FLOP reduction rate is {:.4f}"
+        "Pruning rate of layer {:d} is {:.1f}, Pruned FLOP is {:.0f}, "
+        "Baseline FLOP is {:.0f}, FLOP reduction rate is {:.4f}"
         .format(layer, prune_rate, pruned_flop, baseline_flop, 1 - pruned_flop / baseline_flop))
 
 
