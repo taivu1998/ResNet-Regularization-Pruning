@@ -1,3 +1,7 @@
+'''
+This program implements a Lightning wrapper for ResNet and trains the model.
+'''
+
 from __future__ import print_function
 
 import numpy as np
@@ -25,8 +29,10 @@ warnings.filterwarnings('ignore')
 
 
 class Net(pl.LightningModule):
+    ''' Lightning wrapper for a ResNet model. '''
     
     def __init__(self, arch, criterion, args):
+        ''' Initializes the model. '''
         super(Net, self).__init__()
         self.args = args
         if self.args.seed != 0:
@@ -48,9 +54,11 @@ class Net(pl.LightningModule):
             self.mask = None
             
     def forward(self, x):
+        ''' Performs a forward pass through the network. '''
         return self.net(x)
 
     def training_step(self, batch, batch_nb):
+        ''' Trains the model on a batch. '''
         inputs, targets = batch
         if self.args.regularize == 'mixup':
             inputs, targets_a, targets_b, lam = self.mixup.mixup_data(inputs, targets, self.args.alpha_mixup)
@@ -66,6 +74,7 @@ class Net(pl.LightningModule):
         return {'loss': loss, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
 
     def on_epoch_end(self):
+        ''' Prunes the network at the end of each epoch. '''
         if self.args.prune == 'soft_filter':
             if self.current_epoch % self.args.epoch_prune == 0 or self.current_epoch == self.args.epochs - 1:
                 self.mask.model = self.net
@@ -76,6 +85,7 @@ class Net(pl.LightningModule):
                 self.net = self.mask.model
 
     def validation_step(self, batch, batch_nb):
+        ''' Evaluates the model on a batch. '''
         inputs, targets = batch
         if self.args.regularize == 'mixup':
             inputs, targets = Variable(inputs, volatile = True), Variable(targets)
@@ -91,6 +101,7 @@ class Net(pl.LightningModule):
         return {'val_loss': loss, 'val_acc': acc}
 
     def validation_end(self, outputs):
+        ''' Records validation outcomes. '''
         val_loss_mean = 0
         val_acc_mean = 0
         for output in outputs:
@@ -104,6 +115,7 @@ class Net(pl.LightningModule):
         return {'avg_val_loss': val_loss_mean, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
 
     def configure_optimizers(self):
+        ''' Configures optimizers and learning schedules. '''
         optimizer = optim.SGD(self.parameters(), lr = self.args.lr,
                               momentum = self.args.momentum,
                               weight_decay = self.args.decay)
@@ -120,6 +132,7 @@ class Net(pl.LightningModule):
 
     @pl.data_loader
     def train_dataloader(self):
+        ''' Loads training dataset. '''
         if self.args.augment:
             transform_train = transforms.Compose([
                 transforms.RandomCrop(32, padding = 4),
@@ -146,6 +159,7 @@ class Net(pl.LightningModule):
 
     @pl.data_loader
     def val_dataloader(self):
+        ''' Loads validation dataset. '''
         transform_test = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
@@ -158,6 +172,7 @@ class Net(pl.LightningModule):
 
     @pl.data_loader
     def test_dataloader(self):
+        ''' Loads test dataset. '''
         transform_test = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
@@ -168,6 +183,7 @@ class Net(pl.LightningModule):
         return dataloader
 
     def load_dataset(self, dataset, train, transform, shuffle, batch_size):
+        ''' Loads a dataset. '''
         if self.args.dataset == 'cifar10':
             dataset = datasets.CIFAR10(root = '~/data',
                                        train = train,

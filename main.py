@@ -1,6 +1,8 @@
 '''
-
+This program implements the ResNet architecture with mixup and cutout regularizations
+and soft filter pruning.
 '''
+
 
 import os, sys
 sys.path.append('.')
@@ -52,7 +54,7 @@ def parseArgs():
     # Arguments for regularization.
     parser.add_argument('--alpha-mixup', type = float, default = 1., help = 'Mixup interpolation coefficient.')
     parser.add_argument('--n-holes-cutout', type = int, default = 1, help = 'Number of holes to cut out from image.')
-    parser.add_argument('--length-cutout', type = int, default = 16, help = 'Length of the holes.')
+    parser.add_argument('--length-cutout', type = int, default = 16, help = 'Length of the holes in cutout.')
     
      # Arguments for pruning.
     parser.add_argument('--pruning-rate', type = float, default = 0.9, help = 'Compress rate of model.')

@@ -1,9 +1,22 @@
+'''
+This program calculates the number of floating point operations (FLOPs)
+for various network architectures and pruning rates.
+
+References:
+    https://github.com/he-y/soft-filter-pruning
+'''
+
 
 def cifar_resnet_flop(layer = 110, prune_rate = 1):
     '''
-    :param layer: the layer of Resnet for Cifar, including 110, 56, 32, 20
-    :param prune_rate: 1 means baseline
-    :return: flop of the network
+    Compares the number of FLOPs for a ResNet model with a pruning rate.
+    
+    Args:
+        layer (int): The ResNet network size for CIFAR.
+        prune_rate (int): Compression rate, 1 means baseline.
+        
+    Returns:
+        int: The number of FLOPs of the network.
     '''
     flop = 0
     channel = [16, 32, 64]
@@ -41,11 +54,15 @@ def cifar_resnet_flop(layer = 110, prune_rate = 1):
     flop = flop - offset1 - offset2
     return flop
 
+
 def cal_cifar_resnet_flop(layer, prune_rate):
     '''
-    :param layer:  the layer of Resnet for Cifar, including 110, 56, 32, 20
-    :param prune_rate: 1 means baseline
-    :return:
+    Compares the number of FLOPs for a ResNet model
+    with and  without a pruning rate.
+    
+    Args:
+        layer (int): The ResNet network size for CIFAR.
+        prune_rate (int): Compression rate, 1 means baseline.
     '''
     pruned_flop = cifar_resnet_flop(layer, prune_rate)
     baseline_flop = cifar_resnet_flop(layer, 1)
@@ -55,13 +72,16 @@ def cal_cifar_resnet_flop(layer, prune_rate):
         "baseline FLOP is {:.0f}, FLOP reduction rate is {:.4f}"
         .format(layer, prune_rate, pruned_flop, baseline_flop, 1 - pruned_flop / baseline_flop))
 
+
 def main():
+    ''' Main program. '''
     layer_list = [20, 32, 44, 56, 110, 1202,
                   18, 34, 50, 101, 152]
-    pruning_rate_list = [1.0, 0.9, 0.8, 0.7]
+    pruning_rate_list = [0.9, 0.8, 0.7]
     for layer in layer_list:
         for pruning_rate in pruning_rate_list:
             cal_cifar_resnet_flop(layer, pruning_rate)
+
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,6 @@
-
+'''
+This program implements the ResNet architecture.
+'''
 
 import torch
 import torch.nn as nn
@@ -26,6 +28,7 @@ class LambdaLayer(nn.Module):
 
 
 class BasicBlockSmall(nn.Module):
+    ''' A basic block for small ResNet architectures. '''
     expansion = 1
 
     def __init__(self, in_planes, planes, stride = 1, option = 'A'):
@@ -38,9 +41,7 @@ class BasicBlockSmall(nn.Module):
         self.shortcut = nn.Sequential()
         if stride != 1 or in_planes != planes:
             if option == 'A':
-                """
-                For CIFAR10 ResNet paper uses option A.
-                """
+                # For CIFAR10 ResNet paper uses option A.
                 self.shortcut = LambdaLayer(lambda x:
                                             F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, planes // 4, planes // 4), "constant", 0))
             elif option == 'B':
@@ -58,6 +59,7 @@ class BasicBlockSmall(nn.Module):
 
 
 class ResNetSmall(nn.Module):
+    ''' Small ResNet architectures. '''
     def __init__(self, block, num_blocks, num_classes = 10):
         super(ResNetSmall, self).__init__()
         self.in_planes = 16
@@ -97,6 +99,7 @@ def conv3x3(in_planes, out_planes, stride = 1):
 
 
 class BasicBlockLarge(nn.Module):
+    ''' A basic block for large ResNet architectures. '''
     expansion = 1
 
     def __init__(self, in_planes, planes, stride = 1):
@@ -122,7 +125,7 @@ class BasicBlockLarge(nn.Module):
 
 
 class PreActBlockLarge(nn.Module):
-    ''' Pre-activation version of the BasicBlock. '''
+    ''' Pre-activation version of the BasicBlockLarge. '''
     expansion = 1
 
     def __init__(self, in_planes, planes, stride = 1):
@@ -148,6 +151,7 @@ class PreActBlockLarge(nn.Module):
 
 
 class BottleneckLarge(nn.Module):
+    ''' Bottleneck for large ResNet architectures. '''
     expansion = 4
 
     def __init__(self, in_planes, planes, stride = 1):
@@ -176,7 +180,7 @@ class BottleneckLarge(nn.Module):
 
 
 class PreActBottleneckLarge(nn.Module):
-    ''' Pre-activation version of the original Bottleneck module. '''
+    ''' Pre-activation version of the original BottleneckLarge module. '''
     expansion = 4
 
     def __init__(self, in_planes, planes, stride = 1):
@@ -205,6 +209,7 @@ class PreActBottleneckLarge(nn.Module):
 
 
 class ResNetLarge(nn.Module):
+    ''' Large ResNet architectures. '''
     def __init__(self, block, num_blocks, num_classes = 10):
         super(ResNetLarge, self).__init__()
         self.in_planes = 64
@@ -248,6 +253,7 @@ class ResNetLarge(nn.Module):
 
 
 def ResNet(arch, num_classes = 10):
+    ''' Constructs a ResNet model. '''
     if arch == 'resnet20':
         return ResNetSmall(BasicBlockSmall, [3, 3, 3], num_classes)
     elif arch == 'resnet32':
@@ -277,6 +283,7 @@ def ResNet(arch, num_classes = 10):
 
 
 def test():
+    ''' Tests the implementation of ResNet. '''
     for arch in __all__: 
         net = ResNet(arch)
         y = net(Variable(torch.randn(1,3,32,32)))

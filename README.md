@@ -10,6 +10,8 @@ The project requires the following frameworks:
 
 - PyTorch Lightning: https://github.com/williamFalcon/pytorch-lightning
 
+- W&B: https://www.wandb.com
+
 ## Usage
 
 To run the program, use the following command:
@@ -20,10 +22,17 @@ python main.py
 
 There are several optional command line arguments:
 
-- --arch: ResNet architecture, such as 'resnet20' or 'resnet18'
-- --dataset: Dataset, such as 'cifar10' or 'cifar100'
-- --regularize: Regularization techniques, such as 'mixup' or 'cutout'
-- --prune: Pruning techniques, such as 'soft_filter'
+- --arch: ResNet architecture, such as 'resnet20' or 'resnet18'.
+- --dataset: Dataset, such as 'cifar10' or 'cifar100'.
+- --regularize: Regularization techniques, such as 'mixup' or 'cutout'.
+- --prune: Pruning techniques, such as 'soft_filter'.
+- --batch-size: Size of a training batch.
+- --lr: Learning rate.
+- --epochs: Number of training epochs.
+- --alpha-mixup: Mixup interpolation coefficient.
+- --n-holes-cutout: Number of holes to cut out from image.
+- --length-cutout: Length of the holes in cutout.
+- --pruning-rate: Compress rate of a model.
 
 To calculate the number of FLOPs, use the following command:
 
