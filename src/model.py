@@ -192,9 +192,9 @@ class Net(pl.LightningModule):
             
         elif self.args.dataset == 'cifar100':
             dataset = datasets.CIFAR100(root = '~/data',
-                                       train = train,
-                                       transform = transform,
-                                       download = True)
+                                        train = train,
+                                        transform = transform,
+                                        download = True)
         
         elif self.args.dataset == 'stl10':
             split = 'train' if train else 'test'
@@ -206,9 +206,9 @@ class Net(pl.LightningModule):
         elif self.args.dataset == 'svhn':
             if train:
                 dataset = datasets.SVHN(root = '~/data',
-                                  split = 'train',
-                                  transform = transform,
-                                  download = True)
+                                        split = 'train',
+                                        transform = transform,
+                                        download = True)
                 extra_dataset = datasets.SVHN(root = '~/data',
                                               split = 'extra',
                                               transform = transform,

@@ -6,7 +6,6 @@ References:
     https://github.com/he-y/soft-filter-pruning
 '''
 
-
 def cifar_resnet_flop(layer = 110, prune_rate = 1):
     '''
     Compares the number of FLOPs for a ResNet model with a pruning rate.

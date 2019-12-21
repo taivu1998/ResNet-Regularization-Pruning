@@ -5,7 +5,6 @@ References:
     https://github.com/he-y/soft-filter-pruning
 '''
 
-
 import torch
 import numpy as np
 
@@ -141,5 +140,5 @@ class Mask(object):
                 a = item.data.view(self.model_length[index])
                 b = a.cpu().numpy()
 
-                print("layer: %d, number of nonzero weight is %d, zero is %d" % (
+                print("Layer: %d, number of nonzero weight is %d, zero is %d" % (
                       index, np.count_nonzero(b), len(b) - np.count_nonzero(b)))
