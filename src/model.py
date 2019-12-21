@@ -14,6 +14,7 @@ import torchvision.datasets as datasets
 
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
+import wandb
 
 from resnet import ResNet
 from regularization import *
@@ -99,6 +100,7 @@ class Net(pl.LightningModule):
         val_acc_mean /= len(outputs)
         
         tensorboard_logs = {'val_loss': val_loss_mean, 'val_acc': val_acc_mean}
+        wandb.log({"Test Accuracy": val_acc_mean, "Test Loss": val_loss_mean})
         return {'avg_val_loss': val_loss_mean, 'progress_bar': tensorboard_logs, 'log': tensorboard_logs}
 
     def configure_optimizers(self):

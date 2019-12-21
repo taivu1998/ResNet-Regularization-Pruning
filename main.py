@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import pytorch_lightning as pl
 from pytorch_lightning import Trainer
+import wandb
 
 from model import Net
 
@@ -71,11 +72,15 @@ def main():
     args = parseArgs()
     
     model = Net(arch = args.arch, criterion = nn.CrossEntropyLoss(), args = args)
+    wandb.init(project = "ResNet-Regularization-Pruning", tags = [args.arch], name = (args.arch))
+    wandb.watch(model)
+    
     gpus = 1 if torch.cuda.is_available() else 0
     trainer = Trainer(gpus = gpus, min_nb_epochs = 1, max_nb_epochs = args.epochs,
                       early_stop_callback = None, check_val_every_n_epoch = 1)
     
     trainer.fit(model)
+    wandb.save('model.h5')
     print('View tensorboard logs by running\ntensorboard --logdir %s' % os.getcwd())
     print('and going to http://localhost:6006 on your browser')
     trainer.test()

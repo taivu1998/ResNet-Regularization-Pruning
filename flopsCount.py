@@ -58,7 +58,7 @@ def cal_cifar_resnet_flop(layer, prune_rate):
 def main():
     layer_list = [20, 32, 44, 56, 110, 1202,
                   18, 34, 50, 101, 152]
-    pruning_rate_list = [0.9, 0.8, 0.7]
+    pruning_rate_list = [1.0, 0.9, 0.8, 0.7]
     for layer in layer_list:
         for pruning_rate in pruning_rate_list:
             cal_cifar_resnet_flop(layer, pruning_rate)
