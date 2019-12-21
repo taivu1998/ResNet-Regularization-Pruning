@@ -30,7 +30,7 @@ layers_end = {'resnet20': 54, 'resnet32': 90, 'resnet44': 126, 'resnet56': 162, 
 
 
 def parseArgs():
-    ''' Read command line arguments. '''
+    ''' Reads command line arguments. '''
     parser = argparse.ArgumentParser(description = 'PyTorch ResNet Training.',
                                      formatter_class = argparse.ArgumentDefaultsHelpFormatter)
 
