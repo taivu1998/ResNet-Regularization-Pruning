@@ -1,6 +1,38 @@
 # ResNet-Regularization-Pruning
 
-This program provides a Pytorch Lightning implementation of the ResNet architecture with mixup and cutout regularizations and soft filter pruning. The goal is to reduce the number of FLOPs while improving predictive accuracy.
+This program provides a Pytorch Lightning implementation of the ResNet architecture with mixup and cutout regularizations and soft filter pruning. The goal is to reduce the number of floating-point operations (FLOPs) while improving predictive accuracy.
+
+## Methods
+
+### Mixup Regularization
+
+Mixup adds convex combinations of pairs of examples and their labels to the training data, which improves the generalization error of cutting-edge network architectures, alleviates the memorization of corrupt labels, and increases sensitivity to adversarial examples (Zhang et al., 2017).
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/46636857/77240982-26440780-6c1f-11ea-94ea-509ae64bdaab.jpg">
+  <br>
+    <em>Figure 1: Illustration of mixup, from Zhang et al. (2017).</em>
+</p>
+
+### Cutout Regulaization
+
+Cutput randomly masks out contiguous square regions of the input images to CNNs, which improves robustness and yields higher accuracy level (DeVries & Taylor, 2017).
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/46636857/77240985-31973300-6c1f-11ea-9b5e-c88bfbc73b41.jpg">
+  <br>
+    <em>Figure 2: Cutout applied to images from the CIFAR-10 dataset, from DeVries & Taylor (2017).</em>
+</p>
+
+### Soft Filter Pruning
+
+Soft filter pruning simultaneously trains the model and prunes convolutional filters below some threshold in every epoch, which generates a compact model at the end (He et al., 2018).
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/46636857/77240994-3c51c800-6c1f-11ea-9dad-d970c34aefbb.png">
+  <br>
+    <em>Figure 3: Steps of soft filter pruning, from He et al. (2018).</em>
+</p>
 
 ## Installation
 
