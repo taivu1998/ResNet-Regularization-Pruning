@@ -1,6 +1,6 @@
 # ResNet-Regularization-Pruning
 
-This program provides a Pytorch Lightning implementation of the ResNet architecture with mixup and cutout regularizations and soft filter pruning. The goal is to reduce the number of floating-point operations (FLOPs) while improving predictive accuracy.
+This program provides a Pytorch Lightning implementation of the ResNet architecture with mixup and cutout regularizations and soft filter pruning. The goal is to reduce the number of floating-point operations (FLOPs) while improving predictive accuracy. [[Paper]](https://arxiv.org/abs/2003.13593)
 
 ## Methods
 
