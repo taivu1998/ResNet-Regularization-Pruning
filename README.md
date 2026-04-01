@@ -350,6 +350,7 @@ Outputs analytical FLOP counts for all ResNet variants at pruning rates {0.9, 0.
 | `--length-cutout` | `16` | Cutout patch side length (pixels) |
 | `--pruning-rate` | `0.9` | Fraction of filters retained per layer |
 | `--epoch-prune` | `1` | Pruning frequency (every N epochs) |
+| `--prune-start-epoch` | `1` | First completed epoch after which pruning can begin |
 | `--skip-downsample` | `1` | Skip pruning on shortcut projection layers |
 | `--augment` | `False` | Enable random crop + horizontal flip |
 | `--seed` | `0` | Random seed (0 = no seeding) |

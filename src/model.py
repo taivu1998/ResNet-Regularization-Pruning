@@ -53,10 +53,6 @@ class Net(pl.LightningModule):
         if self.args.prune == 'soft_filter':
             self.mask = Mask(self.net, self.args)
             self.mask.init_length()
-            self.mask.model = self.net
-            self.mask.init_mask(self.args.pruning_rate)
-            self.mask.do_mask()
-            self.net = self.mask.model
         else:
             self.mask = None
             
@@ -96,14 +92,32 @@ class Net(pl.LightningModule):
 
     def on_epoch_end(self):
         ''' Prunes the network at the end of each epoch. '''
-        if self.args.prune == 'soft_filter':
-            if self.current_epoch % self.args.epoch_prune == 0 or self.current_epoch == self.args.epochs - 1:
-                self.mask.model = self.net
-                self.mask.if_zero()
-                self.mask.init_mask(self.args.pruning_rate)
-                self.mask.do_mask()
-                self.mask.if_zero()
-                self.net = self.mask.model
+        if self.args.prune == 'soft_filter' and self._should_prune_current_epoch():
+            self.mask.model = self.net
+            self.mask.if_zero()
+            self.mask.init_mask(self.args.pruning_rate)
+            self.mask.do_mask()
+            self.mask.if_zero()
+            self.net = self.mask.model
+
+    def _should_prune_current_epoch(self):
+        '''
+        Returns whether pruning should run after the just-completed epoch.
+        
+        Pruning is scheduled on completed epochs instead of at initialization so
+        filter ranking reflects learned weights rather than random initialization.
+        '''
+        completed_epoch = self.current_epoch + 1
+        prune_start_epoch = max(1, getattr(self.args, 'prune_start_epoch', 1))
+        prune_frequency = max(1, self.args.epoch_prune)
+
+        if completed_epoch < prune_start_epoch:
+            return False
+
+        if completed_epoch == self.args.epochs:
+            return True
+
+        return (completed_epoch - prune_start_epoch) % prune_frequency == 0
 
     def validation_step(self, batch, batch_nb):
         '''

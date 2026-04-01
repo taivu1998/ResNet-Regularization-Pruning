@@ -70,6 +70,8 @@ def parseArgs():
                         help = 'Compress rate of model.')
     parser.add_argument('--epoch-prune', type = int, default = 1,
                         help = 'Frequency of pruning.')
+    parser.add_argument('--prune-start-epoch', type = int, default = 1,
+                        help = 'First completed epoch after which pruning is allowed.')
     parser.add_argument('--skip-downsample', type = int, default = 1,
                         help = 'Compress layer of model.')
     
